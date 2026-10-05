@@ -124,7 +124,7 @@ class InternetGateway_Backend:
 
         if resource.vpc_id and resource.vpc_id != vpc_id:
             return create_error_response(
-                "DependencyViolation",
+                "Resource.AlreadyAssociated",
                 "InternetGateway is already attached to another VPC.",
             )
         if hasattr(vpc, "internet_gateway_ids") and vpc.internet_gateway_ids:
@@ -172,8 +172,8 @@ class InternetGateway_Backend:
         )
         self.resources[egress_only_igw_id] = resource
 
-        if hasattr(vpc, "internet_gateway_ids"):
-            vpc.internet_gateway_ids.append(egress_only_igw_id)
+        if hasattr(vpc, "egress_only_internet_gateway_ids"):
+            vpc.egress_only_internet_gateway_ids.append(egress_only_igw_id)
 
         return {
             'clientToken': params.get("ClientToken"),
@@ -229,8 +229,8 @@ class InternetGateway_Backend:
         vpc_id = resource.vpc_id
         if vpc_id:
             vpc = self.state.vpcs.get(vpc_id)
-            if vpc and hasattr(vpc, "internet_gateway_ids") and egress_only_id in vpc.internet_gateway_ids:
-                vpc.internet_gateway_ids.remove(egress_only_id)
+            if vpc and hasattr(vpc, "egress_only_internet_gateway_ids") and egress_only_id in vpc.egress_only_internet_gateway_ids:
+                vpc.egress_only_internet_gateway_ids.remove(egress_only_id)
 
         self.resources.pop(egress_only_id, None)
 
@@ -390,7 +390,7 @@ class InternetGateway_Backend:
                     break
         if not attached:
             return create_error_response(
-                "DependencyViolation",
+                "Gateway.NotAttached",
                 "InternetGateway is not attached to the specified VPC.",
             )
 

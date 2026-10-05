@@ -60,6 +60,7 @@ class Vpc:
     vpc_endpoint_ids: List[str] = field(default_factory=list)  # tracks VpcEndpoint children
     route_table_ids: List[str] = field(default_factory=list)  # tracks RouteTable children
     internet_gateway_ids: List[str] = field(default_factory=list)  # tracks InternetGateway children
+    egress_only_internet_gateway_ids: List[str] = field(default_factory=list)  # tracks EgressOnlyInternetGateway children
     vpc_network_interface_ids: List[str] = field(default_factory=list)  # tracks ElasticNetworkInterface children
 
     enable_dns_support: bool = True
@@ -358,6 +359,8 @@ class Vpc_Backend:
             return create_error_response('DependencyViolation', 'Vpc has dependent RouteTable(s) and cannot be deleted.')
         if getattr(vpc, 'internet_gateway_ids', []):
             return create_error_response('DependencyViolation', 'Vpc has dependent InternetGateway(s) and cannot be deleted.')
+        if getattr(vpc, 'egress_only_internet_gateway_ids', []):
+            return create_error_response('DependencyViolation', 'Vpc has dependent EgressOnlyInternetGateway(s) and cannot be deleted.')
         if getattr(vpc, 'vpc_network_interface_ids', []):
             return create_error_response('DependencyViolation', 'Vpc has dependent ElasticNetworkInterface(s) and cannot be deleted.')
 
